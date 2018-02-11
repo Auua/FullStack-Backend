@@ -1,6 +1,7 @@
 const express = require('express'),
   //persons = require('./api/persons'),
   bodyParser = require('body-parser'),
+  morgan = require('morgan'),
   app = express()  
 
 let persons = [
@@ -25,7 +26,12 @@ let persons = [
     "id": 4
   }
 ]
+morgan.token('info', function getInfo (req) {
+  return JSON.stringify({  "name": req.body.name, "number": req.body.number })
+})
+
 app.use(bodyParser.json())
+app.use(morgan(':method :url :status :info :res[content-length] - :response-time ms'))
 
 const generateId = () => {
   const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
