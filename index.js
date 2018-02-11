@@ -2,6 +2,7 @@ const express = require('express'),
   //persons = require('./api/persons'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
+  cors = require('cors'),
   app = express()  
 
 let persons = [
@@ -32,6 +33,7 @@ morgan.token('info', function getInfo (req) {
 
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :info :res[content-length] - :response-time ms'))
+app.use(cors())
 
 const generateId = () => {
   const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
@@ -46,11 +48,11 @@ app.get('/info', (req, res) => {
   res.send(info)
 })
 
-app.get('/persons', (req, res) => {
+app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 
-app.post('/persons', (req, res) => {
+app.post('/api/persons', (req, res) => {
   const body = req.body
 
   if (body.name === undefined || body.number === undefined) {
@@ -69,10 +71,10 @@ app.post('/persons', (req, res) => {
 
   persons = persons.concat(person)
 
-  res.json(person)
+  res.json(person).end()
 })
 
-app.get('/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   const person = persons.find(person => person.id === id)
 
@@ -83,12 +85,12 @@ app.get('/persons/:id', (req, res) => {
   }
 })
 
-app.delete('/persons/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res) => {
   const id = Number(req.params.id)
   persons = persons.filter(person => person.id !== id)
-  res.status(204).end({error: 'deleted'})
+  res.status(204).end()
 })
   
-const port = 3001
-app.listen(port)
-console.log(`Server running on port ${port}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT)
+console.log(`Server running on port ${PORT}`)
