@@ -1,3 +1,3 @@
 # FullStack-Backend
 
-http://fullstack-puhelin.herokuapp.com/api/persons
+http://fullstack-puhelin.herokuapp.com/

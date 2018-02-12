@@ -1,33 +1,11 @@
 const express = require('express'),
-  //persons = require('./api/persons'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
   cors = require('cors'),
-  static = require('static')
-  app = express()  
+  static = require('static'),
+  app = express(),
+  persons= require('./api/mongo')
 
-let persons = [
-  {
-    "name": "Arto Hellas",
-    "number": "040-123456",
-    "id": 1
-  },
-  {
-    "name": "Martti Tienari",
-    "number": "040-123456",
-    "id": 2
-  },
-  {
-    "name": "Arto Järvinen",
-    "number": "040-123456",
-    "id": 3
-  },
-  {
-    "name": "Lea Kutvonen",
-    "number": "040-123456",
-    "id": 4
-  }
-]
 morgan.token('info', function getInfo (req) {
   return JSON.stringify({  "name": req.body.name, "number": req.body.number })
 })
@@ -37,21 +15,23 @@ app.use(morgan(':method :url :status :info :res[content-length] - :response-time
 app.use(cors())
 app.use(express.static('build'))
 
-const generateId = () => {
-  const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
-  return maxId + 1
-}
+// const generateId = () => {
+//   const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
+//   return maxId + 1
+// }
 
 app.get('/info', (req, res) => {
   const date = new Date()
+  const count = persons.countAll()
+  console.log(count)
   let info = 
-    `<h5>Puhelinluettelossa on ${persons.length} henkilön tiedot</h5>
+    `<h5>Puhelinluettelossa on  henkilön tiedot</h5>
     <p>${date}</p>`
   res.send(info)
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons)
+  persons.findAll(req, res)
 })
 
 app.post('/api/persons', (req, res) => {
@@ -60,37 +40,19 @@ app.post('/api/persons', (req, res) => {
   if (body.name === undefined || body.number === undefined) {
     return res.status(400).json({error: 'content missing'})
   }
-
-  if (persons.find(person => person.name === body.name)) {
-    return res.status(400).json({error: 'name must be unique'})
-  }
-
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId()
-  }
-
-  persons = persons.concat(person)
-
-  res.json(person).end()
+  persons.addPerson(req, res)
 })
 
 app.get('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const person = persons.find(person => person.id === id)
-
-  if ( person ) {
-    res.json(person)
-  } else {
-    res.status(404).end({error: 'not found'})
-  }
+  persons.findById(req, res)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter(person => person.id !== id)
-  res.status(204).end()
+  persons.removePerson(req, res)
+})
+
+app.put('/api/persons/:id', (req, res) => {
+  persons.updatePerson(req, res)
 })
   
 const PORT = process.env.PORT || 3001
