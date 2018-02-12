@@ -3,6 +3,7 @@ const express = require('express'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
   cors = require('cors'),
+  static = require('static')
   app = express()  
 
 let persons = [
@@ -34,6 +35,7 @@ morgan.token('info', function getInfo (req) {
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :info :res[content-length] - :response-time ms'))
 app.use(cors())
+app.use(express.static('build'))
 
 const generateId = () => {
   const maxId = persons.length > 0 ? persons.map(n => n.id).sort().reverse()[0] : 1
