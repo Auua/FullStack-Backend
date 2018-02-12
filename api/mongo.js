@@ -24,11 +24,13 @@ const formatPerson = (person) => {
   }
 }
 exports.countAll = () => {
-  Person
-    .count()
-    .then(result => 
-      result = result
-    )
+  return Person
+  .count()
+  // Person
+  //   .count()
+  //   .then(result => 
+  //     result
+  //   )
 }
 
 exports.findAll = (req, res) => {

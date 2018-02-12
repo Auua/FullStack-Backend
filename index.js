@@ -22,12 +22,11 @@ app.use(express.static('build'))
 
 app.get('/info', (req, res) => {
   const date = new Date()
-  const count = persons.countAll()
-  console.log(count)
-  let info = 
-    `<h5>Puhelinluettelossa on  henkilön tiedot</h5>
+  persons.countAll().then(result =>  {
+    const info = 
+    `<h5>Puhelinluettelossa on ${result} henkilön tiedot</h5>
     <p>${date}</p>`
-  res.send(info)
+    res.send(info)})
 })
 
 app.get('/api/persons', (req, res) => {
